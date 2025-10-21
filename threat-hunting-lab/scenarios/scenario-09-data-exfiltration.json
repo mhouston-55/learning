@@ -1,0 +1,23 @@
+{
+  "id": 9,
+  "title": "Scenario 9: Large Data Uploads",
+  "difficulty": "advanced",
+  "description": "After collecting sensitive data, APT29 exfiltrates it to external servers. Look for large outbound data transfers, especially to file-sharing or paste sites.",
+  "mitre_technique": "T1041 - Exfiltration Over C2 Channel",
+  "hunt_for": "Large HTTP POST requests or uploads to external IPs. Focus on connections to file-sharing services, paste sites, or cloud storage with unusual data volumes.",
+  "kibana_query": "method:POST AND (uri:*/upload* OR uri:*/api* OR host:*pastebin* OR host:*file-share*)",
+  "detection_tips": [
+    "Calculate upload sizes from HTTP POST requests",
+    "Identify connections to file-sharing domains",
+    "Look for uploads during off-hours",
+    "Correlate with previous file access events",
+    "Check for encrypted/compressed uploads"
+  ],
+  "key_indicators": [
+    "Large POST request payloads (>1MB)",
+    "Uploads to paste sites or file shares",
+    "Connections to temporary file services",
+    "Multiple sequential uploads",
+    "Uploads from service accounts"
+  ]
+}

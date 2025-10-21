@@ -1,0 +1,21 @@
+{
+  "id": 8,
+  "title": "Scenario 8: Custom User-Agent Detection",
+  "difficulty": "beginner",
+  "description": "Malware often uses custom or unusual User-Agent strings in HTTP requests. APT29 tools may use hardcoded or non-standard User-Agents.",
+  "mitre_technique": "T1071.001 - Application Layer Protocol: Web Protocols",
+  "hunt_for": "HTTP requests with non-standard User-Agent strings. Look for very old browser versions, custom agent names, or missing User-Agent headers.",
+  "kibana_query": "user_agent:(*CustomAgent* OR *Python* OR *curl* OR *wget*) AND NOT user_agent:*Mozilla*",
+  "detection_tips": [
+    "Collect all unique User-Agent strings",
+    "Look for non-browser User-Agents (Python, curl, custom)",
+    "Identify outdated browser versions",
+    "Check for User-Agents that don't match user's actual browser"
+  ],
+  "key_indicators": [
+    "Programming language User-Agents (Python, PowerShell)",
+    "Command-line tools (curl, wget)",
+    "Very short or very long User-Agents",
+    "Custom application names in User-Agent"
+  ]
+}

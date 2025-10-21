@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeek Log Viewer - Threat Hunting Lab</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0e27;
+            color: #00ff00;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #1a1f3a;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+        }
+        h1 {
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            background: #1a1f3a;
+            padding: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        .stat-label {
+            color: #88ff88;
+            margin-top: 10px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #1a1f3a;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+        }
+        select, button {
+            background: #0a0e27;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            border-radius: 3px;
+        }
+        button:hover, select:hover {
+            background: #1a1f3a;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        .log-container {
+            background: #1a1f3a;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            background: #0a0e27;
+            border-left: 3px solid #00ff00;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        .log-entry.suspicious {
+            border-left-color: #ff0000;
+            background: #2a0e0e;
+        }
+        .log-field {
+            margin: 3px 0;
+        }
+        .field-name {
+            color: #88ff88;
+            font-weight: bold;
+        }
+        .field-value {
+            color: #00ff00;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2em;
+            color: #00ff00;
+        }
+        .timestamp {
+            color: #ffff00;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0e27;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00ff00;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ZEEK NETWORK MONITOR</h1>
+        <p>Real-time Network Traffic Analysis</p>
+    </div>
+
+    <div class="stats-container" id="stats">
+        <div class="stat-box">
+            <div class="stat-value" id="total-connections">0</div>
+            <div class="stat-label">Total Connections</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="http-requests">0</div>
+            <div class="stat-label">HTTP Requests</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="dns-queries">0</div>
+            <div class="stat-label">DNS Queries</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="unique-ips">0</div>
+            <div class="stat-label">Unique IPs</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="suspicious-events">0</div>
+            <div class="stat-label">Suspicious Events</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <label for="log-type">Log Type:</label>
+        <select id="log-type">
+            <option value="conn">Connections</option>
+            <option value="http">HTTP</option>
+            <option value="dns">DNS</option>
+            <option value="ssl">SSL/TLS</option>
+            <option value="ssh">SSH</option>
+            <option value="smb">SMB</option>
+        </select>
+        <button onclick="loadLogs()">Refresh</button>
+        <button onclick="loadStats()">Update Stats</button>
+    </div>
+
+    <div class="log-container" id="logs">
+        <div class="loading">Loading logs...</div>
+    </div>
+
+    <script>
+        function loadStats() {
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('total-connections').textContent = data.total_connections;
+                    document.getElementById('http-requests').textContent = data.total_http_requests;
+                    document.getElementById('dns-queries').textContent = data.total_dns_queries;
+                    document.getElementById('unique-ips').textContent = data.unique_ips;
+                    document.getElementById('suspicious-events').textContent = data.suspicious_events;
+                })
+                .catch(error => console.error('Error loading stats:', error));
+        }
+
+        function loadLogs() {
+            const logType = document.getElementById('log-type').value;
+            const logsContainer = document.getElementById('logs');
+            logsContainer.innerHTML = '<div class="loading">Loading logs...</div>';
+
+            fetch(`/api/logs?type=${logType}&limit=50`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        logsContainer.innerHTML = '<div class="loading">No logs found. Generate some traffic first!</div>';
+                        return;
+                    }
+
+                    logsContainer.innerHTML = '';
+                    data.forEach(log => {
+                        const logEntry = document.createElement('div');
+                        logEntry.className = 'log-entry';
+
+                        // Check for suspicious indicators
+                        if (log.query && log.query.length > 50) {
+                            logEntry.classList.add('suspicious');
+                        }
+
+                        let html = '';
+                        for (const [key, value] of Object.entries(log)) {
+                            if (key === 'ts') {
+                                const date = new Date(value * 1000);
+                                html += `<div class="log-field"><span class="field-name">Timestamp:</span> <span class="timestamp">${date.toISOString()}</span></div>`;
+                            } else if (typeof value === 'object') {
+                                html += `<div class="log-field"><span class="field-name">${key}:</span> <span class="field-value">${JSON.stringify(value)}</span></div>`;
+                            } else {
+                                html += `<div class="log-field"><span class="field-name">${key}:</span> <span class="field-value">${value}</span></div>`;
+                            }
+                        }
+                        logEntry.innerHTML = html;
+                        logsContainer.appendChild(logEntry);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading logs:', error);
+                    logsContainer.innerHTML = '<div class="loading">Error loading logs</div>';
+                });
+        }
+
+        // Auto-refresh every 10 seconds
+        setInterval(() => {
+            loadLogs();
+            loadStats();
+        }, 10000);
+
+        // Initial load
+        loadLogs();
+        loadStats();
+    </script>
+</body>
+</html>

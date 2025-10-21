@@ -1,0 +1,23 @@
+{
+  "id": 10,
+  "title": "Scenario 10: Persistence via Scheduled Tasks",
+  "difficulty": "advanced",
+  "description": "APT29 maintains persistence through scheduled tasks, registry modifications, and startup folders. Detecting these requires correlating multiple event types.",
+  "mitre_technique": "T1053.005 - Scheduled Task/Job: Scheduled Task",
+  "hunt_for": "Execution of schtasks.exe, creation of scheduled tasks, or modifications to Run keys. Look for tasks that execute scripts or binaries from suspicious locations.",
+  "kibana_query": "EventID:1 AND (Image:*schtasks.exe* OR CommandLine:*schtasks* OR CommandLine:*/create*)",
+  "detection_tips": [
+    "Search for schtasks.exe execution",
+    "Look for /create, /run, /change flags",
+    "Identify tasks executing from Temp or Public folders",
+    "Check for tasks running at unusual intervals",
+    "Correlate with recently created suspicious files"
+  ],
+  "key_indicators": [
+    "schtasks.exe with /create flag",
+    "Tasks executing PowerShell or scripts",
+    "Tasks from non-standard directories",
+    "Tasks created by non-admin users",
+    "Tasks with SYSTEM privileges"
+  ]
+}

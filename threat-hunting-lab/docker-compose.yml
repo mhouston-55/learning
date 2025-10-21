@@ -1,0 +1,138 @@
+version: '3.8'
+
+services:
+  # Elasticsearch - Log Storage
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: threat-lab-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - elastic-data:/usr/share/elasticsearch/data
+    networks:
+      - threat-lab
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Kibana - Web Interface for Log Analysis
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: threat-lab-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - xpack.security.enabled=false
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - threat-lab
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Logstash - Log Processing Pipeline
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: threat-lab-logstash
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ./logstash/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - zeek-logs:/zeek-logs:ro
+      - sysmon-logs:/sysmon-logs:ro
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - threat-lab
+
+  # Zeek - Network Security Monitor
+  zeek:
+    build:
+      context: ./zeek
+      dockerfile: Dockerfile
+    container_name: threat-lab-zeek
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - zeek-logs:/zeek-logs
+    networks:
+      - threat-lab
+
+  # Zeek Web Viewer - Browse Zeek Logs in Browser
+  zeek-viewer:
+    build:
+      context: ./zeek-viewer
+      dockerfile: Dockerfile
+    container_name: threat-lab-zeek-viewer
+    ports:
+      - "8080:8080"
+    volumes:
+      - zeek-logs:/zeek-logs:ro
+    networks:
+      - threat-lab
+
+  # Sysmon Simulator - Generate Windows Event Logs
+  sysmon-sim:
+    build:
+      context: ./sysmon-sim
+      dockerfile: Dockerfile
+    container_name: threat-lab-sysmon
+    volumes:
+      - sysmon-logs:/sysmon-logs
+    networks:
+      - threat-lab
+
+  # Traffic Generator - Simulate APT Activity
+  traffic-gen:
+    build:
+      context: ./traffic-gen
+      dockerfile: Dockerfile
+    container_name: threat-lab-traffic-gen
+    ports:
+      - "8888:8888"
+    networks:
+      - threat-lab
+    depends_on:
+      - zeek
+
+  # Control Panel - Web Dashboard for Lab Control
+  control-panel:
+    build:
+      context: ./control-panel
+      dockerfile: Dockerfile
+    container_name: threat-lab-control
+    ports:
+      - "8000:8000"
+    networks:
+      - threat-lab
+    volumes:
+      - ./scenarios:/scenarios:ro
+    depends_on:
+      kibana:
+        condition: service_healthy
+
+volumes:
+  elastic-data:
+  zeek-logs:
+  sysmon-logs:
+
+networks:
+  threat-lab:
+    driver: bridge

@@ -1,0 +1,21 @@
+{
+  "id": 5,
+  "title": "Scenario 5: Encoded PowerShell Execution",
+  "difficulty": "beginner",
+  "description": "APT29 frequently uses encoded PowerShell commands to evade detection. These commands are Base64-encoded to hide malicious intentions.",
+  "mitre_technique": "T1027 - Obfuscated Files or Information",
+  "hunt_for": "PowerShell execution with -EncodedCommand or -enc flags. Also look for FromBase64String in command lines.",
+  "kibana_query": "EventID:1 AND (CommandLine:*-enc* OR CommandLine:*-encodedcommand* OR CommandLine:*frombase64*)",
+  "detection_tips": [
+    "Search for Sysmon Event ID 1 (Process Creation)",
+    "Look for powershell.exe in the Image field",
+    "Check CommandLine for encoding flags",
+    "Decode Base64 strings to analyze actual commands"
+  ],
+  "key_indicators": [
+    "PowerShell with -enc or -EncodedCommand",
+    "Long Base64 strings in command line",
+    "FromBase64String method usage",
+    "Hidden window flags (-WindowStyle Hidden)"
+  ]
+}

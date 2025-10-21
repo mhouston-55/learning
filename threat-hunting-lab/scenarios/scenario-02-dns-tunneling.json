@@ -1,0 +1,21 @@
+{
+  "id": 2,
+  "title": "Scenario 2: DNS Data Exfiltration",
+  "difficulty": "beginner",
+  "description": "Attackers use DNS queries to exfiltrate data by encoding information in subdomain names. These queries are often much longer than normal DNS lookups.",
+  "mitre_technique": "T1071.004 - Application Layer Protocol: DNS",
+  "hunt_for": "Unusually long DNS queries (>50 characters), multiple subdomain levels, queries for suspicious TLDs, or high volume of DNS queries from a single source.",
+  "kibana_query": "threat_indicator:potential_dns_tunneling OR (qtype_name:TXT AND query.length > 50)",
+  "detection_tips": [
+    "Look for DNS queries with very long subdomains",
+    "Check for TXT record queries (often used in tunneling)",
+    "Identify queries with encoded/Base64-like patterns",
+    "Look for high DNS query volume from single processes"
+  ],
+  "key_indicators": [
+    "Query length > 50 characters",
+    "Multiple subdomain levels (more than 4-5)",
+    "Base64 or hex-encoded patterns in queries",
+    "Queries to suspicious domains (.tk, .ml)"
+  ]
+}

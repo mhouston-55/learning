@@ -1,0 +1,21 @@
+{
+  "id": 1,
+  "title": "Scenario 1: Command & Control Beaconing",
+  "difficulty": "beginner",
+  "description": "APT29 establishes command and control by sending regular HTTP beacons to external servers at consistent intervals. Learn to detect periodic network connections that indicate C2 activity.",
+  "mitre_technique": "T1071.001 - Application Layer Protocol: Web Protocols",
+  "hunt_for": "Look for HTTP connections with regular timing patterns (beaconing). Focus on connections to unusual domains, especially those with consistent intervals between requests.",
+  "kibana_query": "service:http AND method:POST",
+  "detection_tips": [
+    "Search for HTTP POST requests to external IPs",
+    "Look for connections with regular time intervals (e.g., every 60 seconds)",
+    "Check User-Agent strings for non-standard values",
+    "Identify connections to suspicious TLDs (.tk, .ml, .ga)"
+  ],
+  "key_indicators": [
+    "Regular beacon intervals",
+    "Suspicious domains",
+    "Non-standard User-Agent headers",
+    "POST requests with small payloads"
+  ]
+}

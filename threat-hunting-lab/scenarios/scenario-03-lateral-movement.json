@@ -1,0 +1,21 @@
+{
+  "id": 3,
+  "title": "Scenario 3: SMB Lateral Movement",
+  "difficulty": "intermediate",
+  "description": "APT29 moves laterally across the network using SMB and Windows Admin Shares. Detect abnormal SMB connections, especially from workstations to other workstations.",
+  "mitre_technique": "T1021.002 - Remote Services: SMB/Windows Admin Shares",
+  "hunt_for": "SMB (port 445) connections between internal hosts, especially workstation-to-workstation connections. Look for connections from unexpected source IPs or at unusual times.",
+  "kibana_query": "service:smb OR dest_port:445 OR threat_indicator:potential_lateral_movement",
+  "detection_tips": [
+    "Identify SMB connections (port 445) between workstations",
+    "Look for connections outside business hours",
+    "Check for connections from service accounts",
+    "Identify rapid sequential SMB connections (spray patterns)"
+  ],
+  "key_indicators": [
+    "Workstation-to-workstation SMB",
+    "Multiple failed authentication attempts",
+    "Connections to IPC$ and ADMIN$ shares",
+    "Unusual source IPs for SMB traffic"
+  ]
+}

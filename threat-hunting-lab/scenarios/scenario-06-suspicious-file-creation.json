@@ -1,0 +1,21 @@
+{
+  "id": 6,
+  "title": "Scenario 6: Malware Dropper Detection",
+  "difficulty": "intermediate",
+  "description": "Malware droppers create executable files in unusual locations like Temp, Public, or ProgramData folders. These are common staging areas for APT29 payloads.",
+  "mitre_technique": "T1105 - Ingress Tool Transfer",
+  "hunt_for": "File creation events (Sysmon Event ID 11) where executables (.exe, .dll, .ps1) are written to temporary or public directories.",
+  "kibana_query": "EventID:11 AND TargetFilename:(*.exe OR *.dll OR *.ps1) AND TargetFilename:(*temp* OR *public* OR *programdata*)",
+  "detection_tips": [
+    "Look for Sysmon Event ID 11 (File Creation)",
+    "Focus on executable extensions (.exe, .dll, .ps1)",
+    "Check directories: Temp, Public, ProgramData, AppData",
+    "Correlate with network connections from same process"
+  ],
+  "key_indicators": [
+    "Executables in temp directories",
+    "Files created by suspicious processes",
+    "Random or encoded filenames",
+    "Files created shortly after network activity"
+  ]
+}

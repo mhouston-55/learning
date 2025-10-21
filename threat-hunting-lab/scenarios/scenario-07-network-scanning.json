@@ -1,0 +1,21 @@
+{
+  "id": 7,
+  "title": "Scenario 7: Internal Network Reconnaissance",
+  "difficulty": "beginner",
+  "description": "Before moving laterally, APT29 performs network reconnaissance to map the environment. This includes port scanning and service enumeration.",
+  "mitre_technique": "T1046 - Network Service Scanning",
+  "hunt_for": "Rapid sequential connection attempts to multiple hosts or ports from a single source. Look for connections to common admin ports (22, 445, 3389, 5985).",
+  "kibana_query": "EventID:3 AND (DestinationPort:22 OR DestinationPort:445 OR DestinationPort:3389 OR DestinationPort:5985)",
+  "detection_tips": [
+    "Group network connections by source IP",
+    "Look for connections to many destination IPs in short timeframe",
+    "Identify scanning of common administrative ports",
+    "Check for failed connection attempts (indicators of scanning)"
+  ],
+  "key_indicators": [
+    "Multiple connection attempts in seconds",
+    "Sequential IP address patterns",
+    "Connections to administrative ports",
+    "High ratio of failed to successful connections"
+  ]
+}
