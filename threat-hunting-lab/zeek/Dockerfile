@@ -23,8 +23,11 @@ COPY local.zeek /opt/zeek/share/zeek/site/local.zeek
 RUN echo '#!/bin/bash\n\
 echo "Starting Zeek Network Monitor..."\n\
 cd /zeek-logs\n\
-# Monitor docker network interface\n\
-zeek -i eth0 local &\n\
+# Detect available network interface\n\
+IFACE=$(ip -o link show | grep -v "lo:" | head -n 1 | awk -F": " "{print \\$2}")\n\
+echo "Monitoring interface: $IFACE"\n\
+# Start Zeek in background\n\
+zeek -i $IFACE local > /zeek-logs/zeek-startup.log 2>&1 &\n\
 # Keep container running\n\
 tail -f /dev/null\n\
 ' > /start.sh && chmod +x /start.sh

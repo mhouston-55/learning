@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Elasticsearch - Log Storage
   elasticsearch:
@@ -66,7 +64,6 @@ services:
       context: ./zeek
       dockerfile: Dockerfile
     container_name: threat-lab-zeek
-    network_mode: host
     cap_add:
       - NET_ADMIN
       - NET_RAW
