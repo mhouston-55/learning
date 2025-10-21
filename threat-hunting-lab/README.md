@@ -36,24 +36,45 @@ Both options give you the complete lab experience without installing anything lo
 
 ## Quick Start (Local Docker)
 
-Get up and running in under 5 minutes:
+### Option A: Fast Start (Recommended for First Time)
+
+Skip Zeek for faster startup (60 seconds vs 5 minutes):
 
 ```bash
-# 1. Start the lab
+cd threat-hunting-lab
+
+# Start without Zeek (faster, less memory)
+docker-compose up -d elasticsearch kibana logstash sysmon-sim traffic-gen control-panel
+
+# Wait for services
+./init/wait-for-services.sh
+
+# Setup Kibana
+./init/setup-kibana.sh
+
+# Open browser: http://localhost:8000
+```
+
+**You still get:** All 10 scenarios, Sysmon logs, Kibana, traffic generators!
+
+### Option B: Full Lab (With Zeek Network Monitoring)
+
+For complete experience including network packet analysis:
+
+```bash
 cd threat-hunting-lab
 docker-compose up -d
 
-# 2. Wait for all services to be ready (takes 2-3 minutes)
+# Wait for all services (first build takes 5-10 minutes)
 ./init/wait-for-services.sh
 
-# 3. Set up Kibana index patterns
+# Setup Kibana
 ./init/setup-kibana.sh
 
-# 4. Open your browser and start hunting!
-# Visit http://localhost:8000 for the main dashboard
+# Open browser: http://localhost:8000
 ```
 
-That's it! You're ready to hunt for threats.
+**See [QUICK-START.md](QUICK-START.md) for more details.**
 
 ## What You Get
 
