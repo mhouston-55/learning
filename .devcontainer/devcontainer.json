@@ -1,0 +1,46 @@
+{
+  "name": "Threat Hunting Lab",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true
+    }
+  },
+
+  "forwardPorts": [5601, 8000, 8080, 8888, 9200],
+
+  "portsAttributes": {
+    "5601": {
+      "label": "Kibana",
+      "onAutoForward": "notify"
+    },
+    "8000": {
+      "label": "Main Dashboard",
+      "onAutoForward": "openBrowser"
+    },
+    "8080": {
+      "label": "Zeek Viewer",
+      "onAutoForward": "notify"
+    },
+    "8888": {
+      "label": "Traffic Generator",
+      "onAutoForward": "notify"
+    },
+    "9200": {
+      "label": "Elasticsearch",
+      "onAutoForward": "silent"
+    }
+  },
+
+  "postCreateCommand": "echo 'Threat Hunting Lab Environment Ready! Navigate to threat-hunting-lab/ and run: docker-compose up -d'",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  }
+}

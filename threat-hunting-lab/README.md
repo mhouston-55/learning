@@ -2,7 +2,39 @@
 
 A complete browser-based threat hunting environment for learning to detect APT29 (Cozy Bear) techniques. Everything runs in Docker and is accessible through your web browser - no SSH or terminal required for hunting!
 
-## Quick Start
+## Don't Have Docker Installed?
+
+**No problem!** Run this lab entirely in your browser using these free cloud options:
+
+### Option 1: GitHub Codespaces (Recommended)
+- **Free:** 60 hours/month
+- **Best for:** Extended learning sessions
+- **Setup:** 2 minutes
+- **[Full Guide →](CODESPACES.md)**
+
+**Quick start:**
+1. Go to your GitHub repo
+2. Click "Code" → "Codespaces" → "Create codespace"
+3. Wait for it to load, then run `docker-compose up -d`
+4. Access web interfaces via the "Ports" tab
+
+### Option 2: Play with Docker
+- **Free:** Unlimited sessions
+- **Session length:** 4 hours each
+- **Setup:** 3 minutes
+- **[Full Guide →](PLAY-WITH-DOCKER.md)**
+
+**Quick start:**
+1. Visit https://labs.play-with-docker.com/
+2. Login and click "Add New Instance"
+3. Clone this repo and run `docker-compose up -d`
+4. Click port numbers at top to access services
+
+Both options give you the complete lab experience without installing anything locally!
+
+---
+
+## Quick Start (Local Docker)
 
 Get up and running in under 5 minutes:
 
