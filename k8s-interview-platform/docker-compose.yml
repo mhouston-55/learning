@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.kube:/root/.kube:ro
+    restart: unless-stopped
+    networks:
+      - k8s-interview
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - k8s-interview
+
+  # Optional: KinD (Kubernetes in Docker) for local testing
+  kind-cluster:
+    image: kindest/node:v1.27.3
+    privileged: true
+    ports:
+      - "6443:6443"
+    environment:
+      - KIND_EXPERIMENTAL_DOCKER_NETWORK=k8s-interview
+    volumes:
+      - kind-data:/var/lib/containerd
+    networks:
+      - k8s-interview
+    profiles:
+      - local-k8s
+
+networks:
+  k8s-interview:
+    driver: bridge
+
+volumes:
+  kind-data:

@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  database.conf: |
+    host=postgres
+    port=5432
+    database=wrong_db_name  # Intentional error
+    pool_size=10
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-secret
+type: Opaque
+stringData:
+  db-password: "correctpassword123"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: api
+        image: busybox
+        command:
+        - sh
+        - -c
+        - |
+          while true; do
+            echo "Backend API running..."
+            echo "Connecting to database from config..."
+            cat /config/database.conf
+            echo "Using password: $DB_PASSWORD"
+            sleep 10
+          done
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: wrong-key  # Intentional error: key doesn't exist
+        volumeMounts:
+        - name: config
+          mountPath: /wrong-path  # Intentional error: should be /config
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+      volumes:
+      - name: config
+        configMap:
+          name: backend-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 8080
+    targetPort: 8080
